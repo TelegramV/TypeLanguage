@@ -1,0 +1,42 @@
+{
+  "name": "typelanguage",
+  "version": "0.1.0",
+  "description": "Type Language serialization and deserialization.",
+  "author": "Davyd Kohut",
+  "license": "GPL-3.0",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "files": [
+    "lib/**/*"
+  ],
+  "keywords": [
+    "type-language",
+    "typelanguage",
+    "telegram",
+    "mtproto"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TelegramV/TypeLanguage"
+  },
+  "bugs": {
+    "url": "https://github.com/TelegramV/TypeLanguage/issues"
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "jest --config jestconfig.json",
+    "prepare": "npm run build",
+    "prepublishOnly": "npm test",
+    "version": "git add -A src",
+    "postversion": "git push && git push --tags"
+  },
+  "devDependencies": {
+    "@types/jest": "^25.1.4",
+    "jest": "^25.1.0",
+    "ts-jest": "^25.2.1",
+    "typescript": "^3.7.5"
+  },
+  "dependencies": {
+    "buffer": "^5.5.0"
+  }
+}
