@@ -4,19 +4,19 @@ Type Language serialization and deserialization for JavaScript.
 ## Installation
 NPM:
 ```shell script
-npm install typelanguage
+npm install @telegramv/tl
 ```
 
 Yarn:
 ```shell script
-yarn add typelanguage
+yarn add @telegramv/tl
 ```
 
 ## Usage
 Example:
 ```typescript
-import {Serializer, Deserializer} from "typelanguage";
-import schema from "typelanguage/schema/current.json";
+import {Serializer, Deserializer} from "@telegramv/tl";
+import schema from "@telegramv/tl/schema/current.json";
 
 const serializer = new Serializer(schema)
     .int(69)

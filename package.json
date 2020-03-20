@@ -1,5 +1,5 @@
 {
-  "name": "typelanguage",
+  "name": "@telegramv/tl",
   "version": "0.1.0",
   "description": "Type Language serialization and deserialization.",
   "author": "Davyd Kohut",
