@@ -15,10 +15,12 @@ yarn add @telegramv/tl
 ## Usage
 Example:
 ```typescript
-import {Serializer, Deserializer} from "@telegramv/tl";
+import {Serializer, Deserializer, JsonSchema} from "@telegramv/tl";
 import schema from "@telegramv/tl/schema/current.json";
 
-const serializer = new Serializer(schema)
+const jsonSchema = new JsonSchema(schema);
+
+const serializer = new Serializer(jsonSchema)
     .int(69)
     .string("victory")
     .bytes(new Uint8Array([1, 2, 3, 4]), 4)
@@ -26,7 +28,7 @@ const serializer = new Serializer(schema)
 
 console.log(serializer.buffer);
 
-const deserializer = new Deserializer(schema, serializer.buffer);
+const deserializer = new Deserializer(jsonSchema, serializer.buffer);
 
 const int = deserializer.int();
 const string = deserializer.string();

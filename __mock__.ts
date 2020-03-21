@@ -16,6 +16,28 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-test("Serializer", () => {
-    expect(true).toBe(true);
-});
+import {Schema, SchemaConstructor, SchemaMethod} from "./src";
+
+export function __mock_int() {
+
+}
+
+export function __mock_long() {
+
+}
+
+export function __mock_string() {
+
+}
+
+export function __mock_bytes() {
+
+}
+
+export function __mock_constructor(schema: Schema, constructor: SchemaConstructor) {
+
+}
+
+export function __mock_method(schema: Schema, method: SchemaMethod) {
+
+}
