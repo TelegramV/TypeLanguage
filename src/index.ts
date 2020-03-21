@@ -17,7 +17,6 @@
  */
 
 import {Buffer} from "buffer/";
-import pako from "pako";
 
 // --- types --- //
 
