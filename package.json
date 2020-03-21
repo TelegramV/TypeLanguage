@@ -23,7 +23,7 @@
     "url": "https://github.com/TelegramV/TypeLanguage/issues"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "rm -rf lib && tsc",
     "test": "jest --config jestconfig.json",
     "prepare": "npm run build",
     "prepublishOnly": "npm test",
