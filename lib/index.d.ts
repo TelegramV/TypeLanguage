@@ -56,8 +56,13 @@ export declare class Serializer {
     bool(value: boolean): this;
     bytes(value: Uint8Array, length?: number): this;
     string(value: string): this;
+    params(params: any, schemaParams: Array<{
+        name: string;
+        type: string;
+    }>): void;
     method(name: string, params?: any): this;
     object(constructor: Constructor): this;
+    vector(type: string, vector: Array<Constructor | any>): this;
     store(type: string, value: any): this;
     addPadd(): void;
     getBytes(): Uint8Array;

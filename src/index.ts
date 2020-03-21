@@ -17,6 +17,7 @@
  */
 
 import {Buffer} from "buffer/";
+import pako from "pako";
 
 // --- types --- //
 
@@ -228,7 +229,49 @@ export class Serializer {
         return this;
     }
 
+    params(params: any, schemaParams: Array<{ name: string; type: string; }>) {
+        for (let i = 0; i < schemaParams.length; i++) {
+            let {name, type} = schemaParams[i];
+
+            if (type === "#") {
+                const hashParams = schemaParams.filter(param => param.type.substr(0, name.length + 1) === `${name}.`);
+
+                for (const param of hashParams) {
+                    const [cond] = param.type.split("?");
+                    const [field, bit] = cond.split(".");
+                    // @ts-ignore
+                    if (!(params[field] & (1 << bit)) && params[param.name]) {
+                        // @ts-ignore
+                        params[field] |= 1 << bit;
+                    }
+                }
+            }
+
+            if (type.indexOf("?") !== -1) {
+                const [cond, condType] = type.split("?");
+                const [field, bit] = cond.split(".");
+                // @ts-ignore
+                if (!(params[field] & (1 << bit))) {
+                    continue;
+                }
+                type = condType;
+            }
+
+            this.store(type, params[name]);
+        }
+    }
+
     method(name: string, params?: any): this {
+        const method = this.schema.getMethodByName(name);
+
+        if (!method) {
+            throw new Error(`No method found: ${name}`)
+        }
+
+        this.int(method.id);
+
+        this.params(params, method.params);
+
         return this;
     }
 
@@ -237,23 +280,42 @@ export class Serializer {
         const schemaConstructor = this.schema.getConstructorByPredicate(predicate);
 
         if (!schemaConstructor) {
-            throw new Error("No predicate " + predicate + " found");
+            throw new Error(`No constructor found: ${predicate}`);
         }
 
         this.int(schemaConstructor.id);
 
-        for (let i = 0; i < schemaConstructor.params.length; i++) {
-            let {name, type} = schemaConstructor.params[i];
+        this.params(constructor, schemaConstructor.params);
 
-            this.store(type, constructor[name]);
+        return this;
+    }
+
+    vector(type: string, vector: Array<Constructor | any>) {
+        if (type.toLowerCase().substr(0, 6) === "vector") {
+            this.int(0x1cb5c415)
+        }
+
+        const itemType = type.substr(7, type.length - 8);
+
+        this.int(vector.length);
+
+        for (let i = 0; i < vector.length; i++) {
+            this.store(vector[i], itemType);
         }
 
         return this;
     }
 
     store(type: string, value: any) {
+        if (type.charAt(0) === "%") {
+            type = type.substr(1);
+        }
+
+        if (value instanceof Array) {
+            return this.vector(type, value);
+        }
+
         switch (type) {
-            case "#":
             case "int":
                 return this.int(value);
             case "long":
@@ -379,7 +441,7 @@ export class Deserializer {
             schemaConstructor = this.schema.getConstructorByPredicate(predicate);
 
             if (!schemaConstructor) {
-                throw new Error("Constructor not found: " + predicate);
+                throw new Error("No constructor found: " + predicate);
             }
         } else {
             const int = this.int();
@@ -391,7 +453,7 @@ export class Deserializer {
         }
 
         if (!schemaConstructor) {
-            throw new Error("Constructor not found: " + predicate)
+            throw new Error("No constructor found: " + predicate)
         }
 
         predicate = schemaConstructor.predicate;

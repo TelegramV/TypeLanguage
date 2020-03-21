@@ -32,12 +32,13 @@
   },
   "devDependencies": {
     "@types/jest": "^25.1.4",
+    "@types/pako": "^1.0.1",
     "jest": "^25.1.0",
-    "telegram-mtproto": "^2.2.2",
     "ts-jest": "^25.2.1",
     "typescript": "^3.7.5"
   },
   "dependencies": {
-    "buffer": "^5.5.0"
+    "buffer": "^5.5.0",
+    "pako": "^1.0.11"
   }
 }

@@ -24,21 +24,30 @@ const serializer = new Serializer(jsonSchema)
     .int(69)
     .string("victory")
     .bytes(new Uint8Array([1, 2, 3, 4]), 4)
-    .long(new Uint8Array(8));
+    .long(new Uint8Array(8))
+    .object({
+        _: "inputFile",
+        id: new Uint8Array([210, 4, 0, 0, 0, 0, 0, 0]),
+        parts: 2,
+        name: "xxx.png",
+        md5_checksum: "ha.sh",
+    });
 
 console.log(serializer.buffer);
 
-const deserializer = new Deserializer(jsonSchema, serializer.buffer);
+const deserializer = new Deserializer(jsonSchema, serializer.getBytes().buffer);
 
 const int = deserializer.int();
 const string = deserializer.string();
 const bytes = deserializer.bytes();
 const long = deserializer.long();
+const inputFile = deserializer.object("inputFile");
 
 console.log({
     int,
     string,
     bytes,
     long,
+    inputFile,
 })
 ```

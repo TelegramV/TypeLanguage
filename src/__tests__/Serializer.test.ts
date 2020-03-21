@@ -44,6 +44,7 @@ test("simple", () => {
         string: "Telegram V",
         long: new Uint8Array(8),
         bytes: randomBytes(4096),
+        bool: false,
     };
 
     const s = ns();
