@@ -17,13 +17,12 @@
  */
 
 import {Deserializer, JsonSchema, Serializer} from "../index";
-import schema from "../schema/current.json";
+import schema from "../../schema/current.json";
 import {Buffer} from "buffer/";
 
 function random(min: number, max: number) {
     return Math.floor(Math.random() * (max - min) + min);
 }
-
 
 function randomBytes(size: number = 2048) {
     const bytes = new Uint8Array(size);
@@ -36,7 +35,7 @@ function randomBytes(size: number = 2048) {
 const jsonSchema = new JsonSchema(schema);
 
 const ns = () => new Serializer(jsonSchema);
-const ds = (buffer: ArrayBuffer) => new Deserializer(jsonSchema, buffer);
+const nd = (buffer: ArrayBuffer) => new Deserializer(jsonSchema, buffer);
 
 test("simple", () => {
     const testData = {
@@ -55,16 +54,18 @@ test("simple", () => {
         s[k](v);
     }
 
-    const d = ds(s.getBytes().buffer);
+    const d = nd(s.getBytes().buffer);
 
     // @ts-ignore
     for (const [k, v] of Object.entries(testData)) {
         if (v instanceof Uint8Array) {
             // @ts-ignore
-            expect(Buffer.compare(d[k](), v)).toBe(0);
+            expect(Buffer.compare(d[k](), v))
+                .toBe(0);
         } else {
             // @ts-ignore
-            expect(d[k]()).toBe(v);
+            expect(d[k]())
+                .toBe(v);
         }
     }
 });
@@ -81,5 +82,6 @@ test("serialize inputFile", () => {
         md5_checksum: "bbb",
     });
 
-    expect(Buffer.compare(expectedBytes, Buffer.from(s.getBytes()))).toBe(0);
+    expect(Buffer.compare(expectedBytes, Buffer.from(s.getBytes())))
+        .toBe(0);
 });

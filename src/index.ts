@@ -17,6 +17,7 @@
  */
 
 import {Buffer} from "buffer/";
+import pako from "pako";
 
 // --- types --- //
 
@@ -56,6 +57,10 @@ export interface Schema {
 }
 
 // --- implementation --- //
+
+function isGzipped(predicate: number | string) {
+    return predicate === 0x3072cfa1 || predicate === "gzip_packed";
+}
 
 export class JsonSchema implements Schema {
     raw: any;
@@ -140,6 +145,10 @@ export class Serializer {
         }
     }
 
+    id(value: number): this {
+        return this.int(value);
+    }
+
     int(value: number): this {
         this.resizeIfNeeded(4);
 
@@ -190,9 +199,9 @@ export class Serializer {
 
     bool(value: boolean): this {
         if (value) {
-            this.int(0x997275b5);
+            this.id(-1720552011);
         } else {
-            this.int(0xbc799737);
+            this.id(-1132882121);
         }
 
         return this;
@@ -267,7 +276,7 @@ export class Serializer {
             throw new Error(`No method found: ${name}`)
         }
 
-        this.int(method.id);
+        this.id(method.id);
 
         this.params(params, method.params);
 
@@ -282,7 +291,7 @@ export class Serializer {
             throw new Error(`No constructor found: ${predicate}`);
         }
 
-        this.int(schemaConstructor.id);
+        this.id(schemaConstructor.id);
 
         this.params(constructor, schemaConstructor.params);
 
@@ -291,7 +300,7 @@ export class Serializer {
 
     vector(type: string, vector: Array<Constructor | any>) {
         if (type.toLowerCase().substr(0, 6) === "vector") {
-            this.int(0x1cb5c415)
+            this.id(0x1cb5c415)
         }
 
         const itemType = type.substr(7, type.length - 8);
@@ -350,9 +359,18 @@ export class Serializer {
         }
     }
 
-    getBytes(): Uint8Array {
-        const bytes = new Uint8Array(this.offset);
+    getBytes(size?: number): Uint8Array {
+        size = size == null ? this.offset : size;
+
+        const bytes = new Uint8Array(size);
+
         bytes.set(this.buffer.slice(0, this.offset));
+
+        // zero padding
+        for (let i = this.offset; i < size; i++) {
+            bytes[i] = 0;
+        }
+
         return bytes;
     }
 }
@@ -370,11 +388,11 @@ export class Deserializer {
     }
 
     bool(): boolean | Constructor {
-        const int = this.int();
+        const id = this.id();
 
-        if (int === 0x997275b5) {
+        if (id === -1720552011) {
             return true;
-        } else if (int === 0xbc799737) {
+        } else if (id === -1132882121) {
             return false;
         }
 
@@ -407,6 +425,10 @@ export class Deserializer {
         return double;
     }
 
+    id(): number {
+        return this.int();
+    }
+
     int(): number {
         const int = this.buffer.readInt32LE(this.offset);
         this.offset += 4;
@@ -433,29 +455,23 @@ export class Deserializer {
         return this.bytes().toString();
     }
 
-    object(predicate?: string): Constructor {
+    object(): Constructor {
         let schemaConstructor: SchemaConstructor;
 
-        if (predicate) {
-            schemaConstructor = this.schema.getConstructorByPredicate(predicate);
+        const id = this.id();
 
-            if (!schemaConstructor) {
-                throw new Error("No constructor found: " + predicate);
-            }
-        } else {
-            const int = this.int();
-
-            // @ts-ignore
-            predicate = int;
-
-            schemaConstructor = this.schema.getConstructorById(int);
+        if (isGzipped(id)) {
+            const bytes = pako.ungzip(this.bytes());
+            return new Deserializer(this.schema, bytes.buffer).object();
         }
+
+        schemaConstructor = this.schema.getConstructorById(id);
 
         if (!schemaConstructor) {
-            throw new Error("No constructor found: " + predicate)
+            throw new Error("No constructor found: " + id)
         }
 
-        predicate = schemaConstructor.predicate;
+        const predicate = schemaConstructor.predicate;
 
         const result: Constructor = {
             _: predicate
@@ -472,7 +488,6 @@ export class Deserializer {
 
     read(type?: string) {
         switch (type) {
-            case "#":
             case "int":
                 return this.int();
             case "long":
@@ -489,13 +504,13 @@ export class Deserializer {
                 return this.string();
             case "bytes":
                 return this.bytes();
-            case "Bool" || "bool":
+            case "bool" || "Bool":
                 return this.bool();
             case "true":
                 return true
         }
 
-        return this.object(type);
+        return this.object();
     }
 
     slice(length: number): Buffer {

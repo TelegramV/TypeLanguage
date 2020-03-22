@@ -41,7 +41,7 @@ const int = deserializer.int();
 const string = deserializer.string();
 const bytes = deserializer.bytes();
 const long = deserializer.long();
-const inputFile = deserializer.object("inputFile");
+const inputFile = deserializer.object();
 
 console.log({
     int,

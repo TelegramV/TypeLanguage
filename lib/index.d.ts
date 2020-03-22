@@ -47,6 +47,7 @@ export declare class Serializer {
     size: number;
     constructor(schema: Schema, options?: SerializationOptions);
     resizeIfNeeded(plusSize?: number): void;
+    id(value: number): this;
     int(value: number): this;
     int128(value: Uint8Array): this;
     long(value: Uint8Array): this;
@@ -65,7 +66,7 @@ export declare class Serializer {
     vector(type: string, vector: Array<Constructor | any>): this;
     store(type: string, value: any): this;
     addPadd(): void;
-    getBytes(): Uint8Array;
+    getBytes(size?: number): Uint8Array;
 }
 export declare class Deserializer {
     schema: Schema;
@@ -75,13 +76,14 @@ export declare class Deserializer {
     bool(): boolean | Constructor;
     bytes(): Uint8Array;
     double(): number;
+    id(): number;
     int(): number;
     int128(): Uint8Array;
     int256(): Uint8Array;
     int512(): Uint8Array;
     long(): Uint8Array;
     string(): string;
-    object(predicate?: string): Constructor;
+    object(): Constructor;
     read(type?: string): string | number | boolean | Uint8Array | Constructor;
     slice(length: number): Buffer;
     skipPad(): void;
