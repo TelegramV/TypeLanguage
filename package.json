@@ -22,9 +22,6 @@
   "bugs": {
     "url": "https://github.com/TelegramV/TypeLanguage/issues"
   },
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com/"
-  },
   "scripts": {
     "build": "rm -rf lib && tsc && cp -r schema lib/",
     "test": "jest --config jestconfig.json",
