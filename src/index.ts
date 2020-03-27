@@ -17,7 +17,6 @@
  */
 
 import {Buffer} from "buffer/";
-import pako from "pako";
 
 // --- types --- //
 
@@ -40,8 +39,18 @@ export type Constructor = {
     [key: string]: Constructor | Array<Constructor> | any | Array<any>;
 };
 
+export type GZIP = {
+    gzip: (data: Uint8Array) => Uint8Array;
+    ungzip: (data: Uint8Array) => Uint8Array;
+};
+
 export type SerializationOptions = {
-    size: number;
+    gzip?: GZIP;
+    size?: number;
+}
+
+export type DeserializationOptions = {
+    gzip?: GZIP;
 }
 
 export interface Schema {
@@ -125,11 +134,16 @@ export class Serializer {
 
     size: number = 2048;
 
-    constructor(schema: Schema, options?: SerializationOptions) {
-        this.size = options?.size || 2048;
+    gzip: GZIP;
+
+    constructor(schema: Schema, options: SerializationOptions = {}) {
+        this.size = options.size || 2048;
 
         this.buffer = new Buffer(this.size);
         this.schema = schema;
+
+        // @ts-ignore
+        this.gzip = options.gzip;
 
         this.offset = 0;
     }
@@ -269,6 +283,22 @@ export class Serializer {
         }
     }
 
+    vector(type: string, vector: Array<Constructor | any>) {
+        if (type.toLowerCase().substr(0, 6) === "vector") {
+            this.id(0x1cb5c415)
+        }
+
+        const itemType = type.substr(7, type.length - 8);
+
+        this.int(vector.length);
+
+        for (let i = 0; i < vector.length; i++) {
+            this.store(vector[i], itemType);
+        }
+
+        return this;
+    }
+
     method(name: string, params?: any): this {
         const method = this.schema.getMethodByName(name);
 
@@ -294,22 +324,6 @@ export class Serializer {
         this.id(schemaConstructor.id);
 
         this.params(constructor, schemaConstructor.params);
-
-        return this;
-    }
-
-    vector(type: string, vector: Array<Constructor | any>) {
-        if (type.toLowerCase().substr(0, 6) === "vector") {
-            this.id(0x1cb5c415)
-        }
-
-        const itemType = type.substr(7, type.length - 8);
-
-        this.int(vector.length);
-
-        for (let i = 0; i < vector.length; i++) {
-            this.store(vector[i], itemType);
-        }
 
         return this;
     }
@@ -381,10 +395,15 @@ export class Deserializer {
     buffer: Buffer;
     offset: number;
 
-    constructor(schema: Schema, buffer: ArrayBuffer) {
+    gzip: GZIP;
+
+    constructor(schema: Schema, buffer: ArrayBuffer, options: DeserializationOptions = {}) {
         this.schema = schema;
         this.buffer = Buffer.from(buffer);
         this.offset = 0;
+
+        // @ts-ignore
+        this.gzip = options.gzip;
     }
 
     bool(): boolean | Constructor {
@@ -461,7 +480,7 @@ export class Deserializer {
         const id = this.id();
 
         if (isGzipped(id)) {
-            const bytes = pako.ungzip(this.bytes());
+            const bytes = this.gzip.ungzip(this.bytes());
             return new Deserializer(this.schema, bytes.buffer).object();
         }
 

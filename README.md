@@ -17,10 +17,15 @@ Example:
 ```typescript
 import {Serializer, Deserializer, JsonSchema} from "@telegramv/tl";
 import schema from "@telegramv/tl/schema/current.json";
+import pako from "pako";
 
 const jsonSchema = new JsonSchema(schema);
+const gzip = {
+    gzip: (data) => pako.gzip(data),
+    ungzip: (data) => pako.ungzip(data),
+};
 
-const serializer = new Serializer(jsonSchema)
+const serializer = new Serializer(jsonSchema, {gzip})
     .int(69)
     .string("victory")
     .bytes(new Uint8Array([1, 2, 3, 4]), 4)
@@ -33,9 +38,9 @@ const serializer = new Serializer(jsonSchema)
         md5_checksum: "ha.sh",
     });
 
-console.log(serializer.buffer);
+console.log(serializer.getBytes());
 
-const deserializer = new Deserializer(jsonSchema, serializer.getBytes().buffer);
+const deserializer = new Deserializer(jsonSchema, serializer.getBytes().buffer, {gzip});
 
 const int = deserializer.int();
 const string = deserializer.string();
