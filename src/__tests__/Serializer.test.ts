@@ -35,7 +35,7 @@ function randomBytes(size: number = 2048) {
 const jsonSchema = new JsonSchema(schema);
 
 const ns = () => new Serializer(jsonSchema);
-const nd = (buffer: ArrayBuffer) => new Deserializer(jsonSchema, buffer);
+const nd = (data: Uint8Array) => new Deserializer(jsonSchema, data);
 
 test("couple", () => {
     const testData = {
@@ -54,7 +54,7 @@ test("couple", () => {
         s[k](v);
     }
 
-    const d = nd(s.getBytes().buffer);
+    const d = nd(s.getBytes());
 
     // @ts-ignore
     for (const [k, v] of Object.entries(testData)) {
@@ -101,7 +101,7 @@ test("string", () => {
     const s = ns();
     s.string(strval);
 
-    const d = nd(s.getBytes().buffer);
+    const d = nd(s.getBytes());
 
     expect(d.string()).toBe(strval);
 });

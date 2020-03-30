@@ -82,7 +82,7 @@ export declare class Deserializer {
     buffer: Buffer;
     offset: number;
     gzip: GZIP;
-    constructor(schema: Schema, buffer: ArrayBuffer, options?: DeserializationOptions);
+    constructor(schema: Schema, data: Uint8Array, options?: DeserializationOptions);
     bool(): boolean | Constructor;
     bytes(): Uint8Array;
     double(): number;

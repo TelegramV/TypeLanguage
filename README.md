@@ -19,8 +19,14 @@ You also should install some library for GZIP manipulations. I recommend [`pako`
 yarn add pako
 ```
 
-
 ## Usage
+API:
+```typescript
+Serializer(schema: Schema, options?: SerializationOptions);
+Deserializer(schema: Schema, data: Uint8Array, options?: DeserializationOptions);
+```
+
+
 Example:
 ```typescript
 import {Serializer, Deserializer, JsonSchema} from "@telegramv/tl";
@@ -55,7 +61,7 @@ const serializer = new Serializer(jsonSchema, {gzip})
 
 console.log(serializer.getBytes());
 
-const deserializer = new Deserializer(jsonSchema, serializer.getBytes().buffer, {gzip});
+const deserializer = new Deserializer(jsonSchema, serializer.getBytes(), {gzip});
 
 const int = deserializer.int();
 const string = deserializer.string();
@@ -87,7 +93,7 @@ const gzip = {
 };
 
 const createSerializer = (options = {}) => new Serializer(jsonSchema, Object.assign({gzip}, options))
-const createDeserializer = (buffer, options = {}) => new Deserializer(jsonSchema, buffer, Object.assign({gzip}, options))
+const createDeserializer = (data, options = {}) => new Deserializer(jsonSchema, data, Object.assign({gzip}, options))
 
 const TLFactory = {
     serializer: createSerializer,
@@ -102,5 +108,5 @@ File `example.js`:
 import TLFactory from "./TLFactory";
 
 const serializer = TLFactory.serializer();
-const deserializer = TLFactory.deserializer(serializer.getBytes().buffer);
+const deserializer = TLFactory.deserializer(serializer.getBytes());
 ```

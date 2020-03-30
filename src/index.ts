@@ -397,9 +397,9 @@ export class Deserializer {
 
     gzip: GZIP;
 
-    constructor(schema: Schema, buffer: ArrayBuffer, options: DeserializationOptions = {}) {
+    constructor(schema: Schema, data: Uint8Array, options: DeserializationOptions = {}) {
         this.schema = schema;
-        this.buffer = Buffer.from(buffer);
+        this.buffer = Buffer.from(data);
         this.offset = 0;
 
         // @ts-ignore
@@ -481,7 +481,7 @@ export class Deserializer {
 
         if (isGzipped(id)) {
             const bytes = this.gzip.ungzip(this.bytes());
-            return new Deserializer(this.schema, bytes.buffer).object();
+            return new Deserializer(this.schema, bytes).object();
         }
 
         schemaConstructor = this.schema.getConstructorById(id);
