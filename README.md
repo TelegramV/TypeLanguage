@@ -1,4 +1,6 @@
 # Type Language
+[![npm version](https://badge.fury.io/js/%40telegramv%2Ftl.svg)](https://badge.fury.io/js/%40telegramv%2Ftl)
+
 Type Language serialization and deserialization for JavaScript.
 
 ## Installation
@@ -30,8 +32,8 @@ const jsonSchema = new JsonSchema(schema);
 /**
  * Note: `data` is Uint8Array and method should return Uint8Array.
 
- * @property {(data:Uint8Array) => Uint8Array} gzip
- * @property {(data:Uint8Array) => Uint8Array} ungzip
+ * @property {(data: Uint8Array) => Uint8Array} gzip
+ * @property {(data: Uint8Array) => Uint8Array} ungzip
  */
 const gzip = {
     gzip: (data) => pako.gzip(data),
