@@ -21,8 +21,16 @@ export declare type Constructor = {
     _: string;
     [key: string]: Constructor | Array<Constructor> | any | Array<any>;
 };
+export declare type GZIP = {
+    gzip: (data: Uint8Array) => Uint8Array;
+    ungzip: (data: Uint8Array) => Uint8Array;
+};
 export declare type SerializationOptions = {
-    size: number;
+    gzip?: GZIP;
+    size?: number;
+};
+export declare type DeserializationOptions = {
+    gzip?: GZIP;
 };
 export interface Schema {
     raw: any;
@@ -45,6 +53,7 @@ export declare class Serializer {
     buffer: Buffer;
     offset: number;
     size: number;
+    gzip: GZIP;
     constructor(schema: Schema, options?: SerializationOptions);
     resizeIfNeeded(plusSize?: number): void;
     id(value: number): this;
@@ -61,9 +70,9 @@ export declare class Serializer {
         name: string;
         type: string;
     }>): void;
+    vector(type: string, vector: Array<Constructor | any>): this;
     method(name: string, params?: any): this;
     object(constructor: Constructor): this;
-    vector(type: string, vector: Array<Constructor | any>): this;
     store(type: string, value: any): this;
     addPadd(): void;
     getBytes(size?: number): Uint8Array;
@@ -72,7 +81,8 @@ export declare class Deserializer {
     schema: Schema;
     buffer: Buffer;
     offset: number;
-    constructor(schema: Schema, buffer: ArrayBuffer);
+    gzip: GZIP;
+    constructor(schema: Schema, buffer: ArrayBuffer, options?: DeserializationOptions);
     bool(): boolean | Constructor;
     bytes(): Uint8Array;
     double(): number;
