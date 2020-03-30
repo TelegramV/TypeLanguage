@@ -12,6 +12,12 @@ Yarn:
 yarn add @telegramv/tl
 ```
 
+You also should install some library for GZIP manipulations. I recommend [`pako`](https://github.com/nodeca/pako).
+```shell script
+yarn add pako
+```
+
+
 ## Usage
 Example:
 ```typescript
