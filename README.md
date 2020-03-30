@@ -26,6 +26,13 @@ import schema from "@telegramv/tl/schema/current.json";
 import pako from "pako";
 
 const jsonSchema = new JsonSchema(schema);
+
+/**
+ * Note: `data` is Uint8Array and method should return Uint8Array.
+
+ * @property {(data:Uint8Array) => Uint8Array} gzip
+ * @property {(data:Uint8Array) => Uint8Array} ungzip
+ */
 const gzip = {
     gzip: (data) => pako.gzip(data),
     ungzip: (data) => pako.ungzip(data),
@@ -61,4 +68,37 @@ console.log({
     long,
     inputFile,
 })
+```
+
+It is very convenient to use factory pattern here.
+
+File `TLFactory.js`:
+```javascript
+import {Serializer, Deserializer, JsonSchema} from "@telegramv/tl";
+import schema from "@telegramv/tl/schema/current.json";
+import pako from "pako";
+
+const jsonSchema = new JsonSchema(schema);
+const gzip = {
+    gzip: (data) => pako.gzip(data),
+    ungzip: (data) => pako.ungzip(data),
+};
+
+const createSerializer = (options = {}) => new Serializer(jsonSchema, Object.assign({gzip}, options))
+const createDeserializer = (buffer, options = {}) => new Deserializer(jsonSchema, buffer, Object.assign({gzip}, options))
+
+const TLFactory = {
+    serializer: createSerializer,
+    deserializer: createDeserializer,
+};
+
+export default TLFactory;
+```
+
+File `example.js`:
+```javascript
+import TLFactory from "./TLFactory";
+
+const serializer = TLFactory.serializer();
+const deserializer = TLFactory.deserializer(serializer.getBytes().buffer);
 ```
