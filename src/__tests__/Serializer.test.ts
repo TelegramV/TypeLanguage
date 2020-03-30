@@ -37,7 +37,7 @@ const jsonSchema = new JsonSchema(schema);
 const ns = () => new Serializer(jsonSchema);
 const nd = (buffer: ArrayBuffer) => new Deserializer(jsonSchema, buffer);
 
-test("simple", () => {
+test("couple", () => {
     const testData = {
         int: 69,
         string: "Telegram V",
@@ -84,4 +84,44 @@ test("serialize inputFile", () => {
 
     expect(Buffer.compare(expectedBytes, Buffer.from(s.getBytes())))
         .toBe(0);
+});
+
+test("int", () => {
+    const intval = 69;
+    const s = ns();
+    s.int(intval);
+
+    expect(s.getBytes().length).toBe(4);
+
+    expect(Buffer.from(s.getBytes()).readUInt8(0)).toBe(intval);
+});
+
+test("string", () => {
+    const strval = "durka";
+    const s = ns();
+    s.string(strval);
+
+    const d = nd(s.getBytes().buffer);
+
+    expect(d.string()).toBe(strval);
+});
+
+test("bool", () => {
+    const boolval = true;
+    const s = ns();
+    s.bool(boolval);
+
+    expect(s.getBytes().length).toBe(4);
+
+    expect(Buffer.from(s.getBytes()).readInt32LE(0)).toBe(-1720552011);
+});
+
+test("double", () => {
+    const doubleval = 3.14;
+    const s = ns();
+    s.double(doubleval);
+
+    expect(s.getBytes().length).toBe(8);
+
+    expect(Buffer.from(s.getBytes()).readDoubleLE(0)).toBe(doubleval);
 });
