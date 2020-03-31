@@ -17,7 +17,7 @@
  */
 
 import {Deserializer, JsonSchema, Serializer} from "../index";
-import schema from "../../schema/current.json";
+import schema from "@telegramv/schema";
 import {Buffer} from "buffer/";
 
 function random(min: number, max: number) {

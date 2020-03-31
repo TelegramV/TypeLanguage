@@ -1,6 +1,6 @@
 {
   "name": "@telegramv/tl",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Type Language serialization and deserialization.",
   "author": "Davyd Kohut",
   "license": "GPL-3.0",
@@ -23,7 +23,7 @@
     "url": "https://github.com/TelegramV/TypeLanguage/issues"
   },
   "scripts": {
-    "build": "rm -rf lib && tsc && cp -r schema lib/",
+    "build": "rm -rf lib && tsc",
     "test": "jest --config jestconfig.json",
     "prepare": "npm run build",
     "prepublishOnly": "npm test",
@@ -36,7 +36,8 @@
     "jest": "^25.1.0",
     "pako": "^1.0.11",
     "ts-jest": "^25.2.1",
-    "typescript": "^3.7.5"
+    "typescript": "^3.7.5",
+    "@telegramv/schema": "^2.108.2"
   },
   "dependencies": {
     "buffer": "^5.5.0"

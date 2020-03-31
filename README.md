@@ -20,7 +20,7 @@ yarn add pako
 ```
 
 ## Usage
-API:
+Constructors:
 ```typescript
 Serializer(schema: Schema, options?: SerializationOptions);
 Deserializer(schema: Schema, data: Uint8Array, options?: DeserializationOptions);
@@ -28,9 +28,10 @@ Deserializer(schema: Schema, data: Uint8Array, options?: DeserializationOptions)
 
 
 Example:
+> You can install [`@telegramv/schema`](https://github.com/TelegramV/Schema) or use your own schema.
 ```typescript
 import {Serializer, Deserializer, JsonSchema} from "@telegramv/tl";
-import schema from "@telegramv/tl/schema/current.json";
+import schema from "@telegramv/schema";
 import pako from "pako";
 
 const jsonSchema = new JsonSchema(schema);
@@ -83,7 +84,7 @@ It is very convenient to use factory pattern here.
 File `TLFactory.js`:
 ```javascript
 import {Serializer, Deserializer, JsonSchema} from "@telegramv/tl";
-import schema from "@telegramv/tl/schema/current.json";
+import schema from "@telegramv/schema";
 import pako from "pako";
 
 const jsonSchema = new JsonSchema(schema);
@@ -92,8 +93,8 @@ const gzip = {
     ungzip: (data) => pako.ungzip(data),
 };
 
-const createSerializer = (options = {}) => new Serializer(jsonSchema, Object.assign({gzip}, options))
-const createDeserializer = (data, options = {}) => new Deserializer(jsonSchema, data, Object.assign({gzip}, options))
+const createSerializer = (options = {}) => new Serializer(jsonSchema, {gzip, ...options})
+const createDeserializer = (data, options = {}) => new Deserializer(jsonSchema, data, {gzip, ...options})
 
 const TLFactory = {
     serializer: createSerializer,
