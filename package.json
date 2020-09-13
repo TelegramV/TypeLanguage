@@ -1,6 +1,6 @@
 {
   "name": "protov-tl",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "description": "TypeLanguage serialization and deserialization.",
   "author": "Davyd Kohut",
   "license": "GPL-3.0",

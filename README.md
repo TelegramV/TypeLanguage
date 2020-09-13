@@ -1,7 +1,7 @@
 # Type Language
-[![npm version](https://badge.fury.io/js/%40telegramv%2Ftl.svg)](https://badge.fury.io/js/%40telegramv%2Ftl)
+[![npm version](https://badge.fury.io/js/protov-tl.svg)](https://badge.fury.io/js/%40telegramv%2Ftl)
 
-Type Language serialization and deserialization for JavaScript.
+TypeLanguage serialization and deserialization for JavaScript.
 
 ## Installation
 NPM:
@@ -26,15 +26,12 @@ Packer(schema: Schema, gzip: GZIP);
 Unpacker(data: Uint8Array, schema: Schema, gzip: GZIP);
 ```
 
-
 Example:
-> You can install [`@telegramv/schema`](https://github.com/TelegramV/Schema) or use your own schema.
 ```typescript
 import {Packer, Unpacker, JsonSchema} from "@telegramv/tl";
-import schema from "@telegramv/schema";
 import pako from "pako";
 
-const jsonSchema = new JsonSchema(schema);
+const jsonSchema = new JsonSchema(require("./schema.json"));
 
 const gzip = {
     gzip: (data) => pako.gzip(data),

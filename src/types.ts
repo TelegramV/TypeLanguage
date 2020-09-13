@@ -23,8 +23,6 @@ export type GZIP = {
 };
 
 export interface Schema {
-    raw: any;
-
     getMethodById(id: number): SchemaMethod;
 
     getMethodByName(name: string): SchemaMethod;
