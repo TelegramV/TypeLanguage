@@ -6,12 +6,12 @@ Type Language serialization and deserialization for JavaScript.
 ## Installation
 NPM:
 ```shell script
-npm install @telegramv/tl
+npm install protov-tl
 ```
 
 Yarn:
 ```shell script
-yarn add @telegramv/tl
+yarn add protov-tl
 ```
 
 You also should install some library for GZIP manipulations. I recommend [`pako`](https://github.com/nodeca/pako).
@@ -22,8 +22,8 @@ yarn add pako
 ## Usage
 Constructors:
 ```typescript
-Packer(schema: Schema, options?: SerializationOptions);
-Unpacker(schema: Schema, data: Uint8Array, options?: DeserializationOptions);
+Packer(schema: Schema, gzip: GZIP);
+Unpacker(data: Uint8Array, schema: Schema, gzip: GZIP);
 ```
 
 
@@ -36,18 +36,12 @@ import pako from "pako";
 
 const jsonSchema = new JsonSchema(schema);
 
-/**
- * Note: `data` is Uint8Array and method should return Uint8Array.
-
- * @property {(data: Uint8Array) => Uint8Array} gzip
- * @property {(data: Uint8Array) => Uint8Array} ungzip
- */
 const gzip = {
     gzip: (data) => pako.gzip(data),
     ungzip: (data) => pako.ungzip(data),
 };
 
-const serializer = new Packer(jsonSchema, {gzip})
+const packer = new Packer(jsonSchema, gzip)
     .int(69)
     .string("victory")
     .bytes(new Uint8Array([1, 2, 3, 4]), 4)
@@ -60,15 +54,15 @@ const serializer = new Packer(jsonSchema, {gzip})
         md5_checksum: "ha.sh",
     });
 
-console.log(serializer.getBytes());
+console.log(packer.toByteArray());
 
-const deserializer = new Unpacker(jsonSchema, serializer.getBytes(), {gzip});
+const deserializer = new Unpacker(packer.toByteArray(), jsonSchema, gzip);
 
 const int = deserializer.int();
 const string = deserializer.string();
 const bytes = deserializer.bytes();
 const long = deserializer.long();
-const inputFile = deserializer.object();
+const inputFile = deserializer.unpack();
 
 console.log({
     int,
@@ -93,12 +87,12 @@ const gzip = {
     ungzip: (data) => pako.ungzip(data),
 };
 
-const createSerializer = (options = {}) => new Packer(jsonSchema, {gzip, ...options})
-const createDeserializer = (data, options = {}) => new Unpacker(jsonSchema, data, {gzip, ...options})
+const createPacker = () => new Packer(jsonSchema, gzip)
+const createUnpacker = (data) => new Unpacker(data, jsonSchema, gzip})
 
 const TLFactory = {
-    serializer: createSerializer,
-    deserializer: createDeserializer,
+    packer: createPacker,
+    unpacker: createUnpacker,
 };
 
 export default TLFactory;

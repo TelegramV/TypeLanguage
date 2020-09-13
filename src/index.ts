@@ -20,4 +20,4 @@ import Packer from "./Packer";
 import Unpacker from "./Unpacker";
 import JsonSchema from "./JsonSchema";
 
-export default {Packer, Unpacker, JsonSchema};
+export {Packer, Unpacker, JsonSchema};

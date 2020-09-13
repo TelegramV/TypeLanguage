@@ -1,14 +1,11 @@
 {
-  "name": "@telegramv/tl",
-  "version": "0.5.0",
-  "description": "Type Language serialization and deserialization.",
+  "name": "protov-tl",
+  "version": "0.5.2",
+  "description": "TypeLanguage serialization and deserialization.",
   "author": "Davyd Kohut",
   "license": "GPL-3.0",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
-  "files": [
-    "lib/**/*"
-  ],
   "keywords": [
     "type-language",
     "typelanguage",
@@ -37,10 +34,10 @@
     "jest": "^25.1.0",
     "pako": "^1.0.11",
     "ts-jest": "^25.2.1",
-    "typescript": "^3.7.5"
+    "typescript": "^3.7.5",
+    "crc-32": "^1.2.0"
   },
   "dependencies": {
-    "buffer": "^5.5.0",
-    "crc-32": "^1.2.0"
+    "buffer": "^5.5.0"
   }
 }
