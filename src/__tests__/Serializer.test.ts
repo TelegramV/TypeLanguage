@@ -16,9 +16,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import {Deserializer, JsonSchema, Serializer} from "../index";
 import schema from "@telegramv/schema";
 import {Buffer} from "buffer/";
+import Packer from "../Packer";
+import JsonSchema from "../JsonSchema";
+import Unpacker from "../Unpacker";
 
 function random(min: number, max: number) {
     return Math.floor(Math.random() * (max - min) + min);
@@ -33,9 +35,10 @@ function randomBytes(size: number = 2048) {
 }
 
 const jsonSchema = new JsonSchema(schema);
+const gzip = {compress: () => new Uint8Array, decompress: () => new Uint8Array};
 
-const ns = () => new Serializer(jsonSchema);
-const nd = (data: Uint8Array) => new Deserializer(jsonSchema, data);
+const ns = () => new Packer(jsonSchema, gzip);
+const nd = (data: Uint8Array) => new Unpacker(data, jsonSchema, gzip);
 
 test("couple", () => {
     const testData = {
@@ -54,7 +57,7 @@ test("couple", () => {
         s[k](v);
     }
 
-    const d = nd(s.getBytes());
+    const d = nd(s.toByteArray());
 
     // @ts-ignore
     for (const [k, v] of Object.entries(testData)) {
@@ -74,7 +77,7 @@ test("serialize inputFile", () => {
     const expectedBytes = Buffer.from([127, 242, 47, 245, 210, 4, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 3, 97, 97, 97, 3, 98, 98, 98]);
     const s = ns();
 
-    s.object({
+    s.type({
         _: "inputFile",
         id: new Uint8Array([210, 4, 0, 0, 0, 0, 0, 0]),
         parts: 2,
@@ -82,7 +85,7 @@ test("serialize inputFile", () => {
         md5_checksum: "bbb",
     });
 
-    expect(Buffer.compare(expectedBytes, Buffer.from(s.getBytes())))
+    expect(Buffer.compare(expectedBytes, Buffer.from(s.toByteArray())))
         .toBe(0);
 });
 
@@ -91,9 +94,9 @@ test("int", () => {
     const s = ns();
     s.int(intval);
 
-    expect(s.getBytes().length).toBe(4);
+    expect(s.toByteArray().length).toBe(4);
 
-    expect(Buffer.from(s.getBytes()).readUInt8(0)).toBe(intval);
+    expect(Buffer.from(s.toByteArray()).readUInt8(0)).toBe(intval);
 });
 
 test("string", () => {
@@ -101,7 +104,7 @@ test("string", () => {
     const s = ns();
     s.string(strval);
 
-    const d = nd(s.getBytes());
+    const d = nd(s.toByteArray());
 
     expect(d.string()).toBe(strval);
 });
@@ -111,9 +114,9 @@ test("bool", () => {
     const s = ns();
     s.bool(boolval);
 
-    expect(s.getBytes().length).toBe(4);
+    expect(s.toByteArray().length).toBe(4);
 
-    expect(Buffer.from(s.getBytes()).readInt32LE(0)).toBe(-1720552011);
+    expect(Buffer.from(s.toByteArray()).readInt32LE(0)).toBe(-1720552011);
 });
 
 test("double", () => {
@@ -121,7 +124,7 @@ test("double", () => {
     const s = ns();
     s.double(doubleval);
 
-    expect(s.getBytes().length).toBe(8);
+    expect(s.toByteArray().length).toBe(8);
 
-    expect(Buffer.from(s.getBytes()).readDoubleLE(0)).toBe(doubleval);
+    expect(Buffer.from(s.toByteArray()).readDoubleLE(0)).toBe(doubleval);
 });

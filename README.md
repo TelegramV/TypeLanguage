@@ -22,15 +22,15 @@ yarn add pako
 ## Usage
 Constructors:
 ```typescript
-Serializer(schema: Schema, options?: SerializationOptions);
-Deserializer(schema: Schema, data: Uint8Array, options?: DeserializationOptions);
+Packer(schema: Schema, options?: SerializationOptions);
+Unpacker(schema: Schema, data: Uint8Array, options?: DeserializationOptions);
 ```
 
 
 Example:
 > You can install [`@telegramv/schema`](https://github.com/TelegramV/Schema) or use your own schema.
 ```typescript
-import {Serializer, Deserializer, JsonSchema} from "@telegramv/tl";
+import {Packer, Unpacker, JsonSchema} from "@telegramv/tl";
 import schema from "@telegramv/schema";
 import pako from "pako";
 
@@ -47,7 +47,7 @@ const gzip = {
     ungzip: (data) => pako.ungzip(data),
 };
 
-const serializer = new Serializer(jsonSchema, {gzip})
+const serializer = new Packer(jsonSchema, {gzip})
     .int(69)
     .string("victory")
     .bytes(new Uint8Array([1, 2, 3, 4]), 4)
@@ -62,7 +62,7 @@ const serializer = new Serializer(jsonSchema, {gzip})
 
 console.log(serializer.getBytes());
 
-const deserializer = new Deserializer(jsonSchema, serializer.getBytes(), {gzip});
+const deserializer = new Unpacker(jsonSchema, serializer.getBytes(), {gzip});
 
 const int = deserializer.int();
 const string = deserializer.string();
@@ -83,7 +83,7 @@ It is very convenient to use factory pattern here.
 
 File `TLFactory.js`:
 ```javascript
-import {Serializer, Deserializer, JsonSchema} from "@telegramv/tl";
+import {Packer, Unpacker, JsonSchema} from "@telegramv/tl";
 import schema from "@telegramv/schema";
 import pako from "pako";
 
@@ -93,8 +93,8 @@ const gzip = {
     ungzip: (data) => pako.ungzip(data),
 };
 
-const createSerializer = (options = {}) => new Serializer(jsonSchema, {gzip, ...options})
-const createDeserializer = (data, options = {}) => new Deserializer(jsonSchema, data, {gzip, ...options})
+const createSerializer = (options = {}) => new Packer(jsonSchema, {gzip, ...options})
+const createDeserializer = (data, options = {}) => new Unpacker(jsonSchema, data, {gzip, ...options})
 
 const TLFactory = {
     serializer: createSerializer,
